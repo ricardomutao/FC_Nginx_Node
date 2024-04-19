@@ -6,7 +6,7 @@ services:
 
   nginx:
     build:
-      context: nginx
+      context: ./nginx
       dockerfile: Dockerfile.prod
     container_name: nginx
     networks:
@@ -17,10 +17,11 @@ services:
       - node
   node:
     build:
-      # Vai pegar o Dockerfile por padrão por conta do nome
-      context: node
+      context: ./node
+      dockerfile: Dockerfile
     container_name: node
-    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s docker-entrypoint.sh node index.js
+    # entrypoint: dockerize -wait tcp://db:3306 -timeout 20s docker-entrypoint.sh 
+    # entrypoint: npm install mysql2 express --save
     networks:
       - node-network
     volumes:
@@ -30,6 +31,7 @@ services:
       - "3000:3000"
     depends_on:
       - db
+    command: node index.js
 
   db:
     image: mysql:5.7
