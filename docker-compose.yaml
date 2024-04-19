@@ -1,0 +1,56 @@
+# Especificar quais serviços quero subir com o docker compose
+
+version: '3'
+
+services:
+
+  nginx:
+    build:
+      context: nginx
+      dockerfile: Dockerfile.prod
+    container_name: nginx
+    networks:
+      - node-network
+    ports:
+      - "8080:80"
+    depends_on:
+      - node
+  node:
+    build:
+      # Vai pegar o Dockerfile por padrão por conta do nome
+      context: node
+    container_name: node
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s docker-entrypoint.sh node index.js
+    networks:
+      - node-network
+    volumes:
+      - ./node:/usr/src/app
+    tty: true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    # Comando padrão para entrypoint
+    command: --innodb-use-native-aio=0
+    container_name: db
+    # Sempre que cair, restartar sozinho
+    restart: always
+    # Para podermos digitar algo de forma interativa
+    tty: true
+    # Vai para ./mysql(na máquina): Tudo que for gravado em /var/lib/mysql
+    # Assim, se mantem os dados do banco
+    volumes:
+      - ./mysql:/var/lib/mysql
+    # Já cria as variáveis de ambiente
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - node-network
+
+networks:
+  node-network:
+    driver: bridge

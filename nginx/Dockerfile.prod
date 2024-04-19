@@ -1,0 +1,17 @@
+# Baixando a imagem
+FROM nginx:1.15.0-alpine
+
+# Removendo o arquivo default do Nginx
+RUN rm /etc/nginx/conf.d/default.conf
+
+COPY nginx.conf /etc/nginx/conf.d
+
+# ENTRYPOINT [ "/docker-entrypoint.sh" ]
+CMD ["nginx", "-g", "daemon off;"]
+
+# o -p é para tambem criar subdiretórios caso eles não existam
+# É NECESSÁRIO criar este arquivo pois se o nginx não encontrar nenhum arquivo
+# de referência, neste caso o index.php no container dele, ele vai
+# disparar erro 404 imediatamente
+# RUN mkdir /var/www/html -p && touch /var/www/html/index.php
+
