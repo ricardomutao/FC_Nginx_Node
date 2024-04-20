@@ -20,18 +20,19 @@ services:
       context: ./node
       dockerfile: Dockerfile
     container_name: node
-    # entrypoint: dockerize -wait tcp://db:3306 -timeout 20s docker-entrypoint.sh 
     # entrypoint: npm install mysql2 express --save
     networks:
       - node-network
     volumes:
       - ./node:/usr/src/app
+      # - /usr/src/app/node_modules
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s sh -c "npm install && node index.js"
     tty: true
     ports:
       - "3000:3000"
     depends_on:
       - db
-    command: node index.js
+    # restart: always
 
   db:
     image: mysql:5.7
