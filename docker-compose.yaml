@@ -15,6 +15,7 @@ services:
       - "8080:80"
     depends_on:
       - node
+    restart: always
   node:
     build:
       context: ./node
